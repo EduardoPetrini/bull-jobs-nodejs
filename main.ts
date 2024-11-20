@@ -4,8 +4,10 @@ import readline from 'readline';
 
 import Queue from 'bull';
 import { listen } from './events';
+import { startWorker } from './worker';
 
 const start = async () => {
+  const mode = process.argv[2] || 'main';
   console.log('Starting...')
   const HOST = process.env.REDIS_HOST || 'localhost';
   const PORT = parseInt(process.env.REDIS_PORT || '6379');
@@ -13,15 +15,12 @@ const start = async () => {
   console.table([{ HOST, PORT }])
   const myQueue = new Queue('my-queue', `redis://${HOST}:${PORT}`);
 
-  listen(myQueue)
+  listen(myQueue);
 
-  myQueue.process((job, done) => {
-    console.log('starting the job', job.id)
-    console.log('job data', job.data)
-    done();
-  });
+  if (mode === 'worker') {
+    return startWorker(myQueue);
+  }
 
-  
   setTimeout(() => {
     console.log('Adding a job')
     myQueue.add({ title: 'hey ho' })
