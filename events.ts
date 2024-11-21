@@ -1,4 +1,5 @@
 import { Job, Queue } from 'bull';
+import { logInfo } from './utils/utils';
 
 export const listen = (queue: Queue) => {
   queue.on('error', function (error) {
@@ -6,11 +7,11 @@ export const listen = (queue: Queue) => {
   })
 
   .on('waiting', function (jobId) {
-    console.log(`*waiting | Job with ID ${jobId} is waiting to be processed.`);
+    logInfo(`*waiting | Job with ID ${jobId} is waiting to be processed.`);
   })
 
   .on('active', function (job, jobPromise) {
-    console.log(`*active | Job with ID ${job.id} is now active.`);
+    logInfo(`*active | Job with ID ${job.id} is now active.`);
   })
 
   .on('stalled', function (job) {
@@ -22,11 +23,11 @@ export const listen = (queue: Queue) => {
   })
 
   .on('progress', function (job, progress) {
-    console.log(`*progress | Job with ID ${job.id} progress: ${progress}%`);
+    logInfo(`*progress | Job with ID ${job.id} progress: ${progress}%`);
   })
 
   .on('completed', function (job, result) {
-    console.log(`*completed | Job with ID ${job.id} completed successfully. Result:`, result);
+    logInfo(`*completed | Job with ID ${job.id} completed successfully. Result:`, result);
   })
 
   .on('failed', function (job, err) {
@@ -34,22 +35,22 @@ export const listen = (queue: Queue) => {
   })
 
   .on('paused', function () {
-    console.log('*paused | The queue has been paused.');
+    logInfo('*paused | The queue has been paused.');
   })
 
   .on('resumed', function (job: Job) {
-    console.log('*resumed | The queue has been resumed.', job.id);
+    logInfo('*resumed | The queue has been resumed.', job.id);
   })
 
   .on('cleaned', function (jobs, type) {
-    console.log(`*cleaned | Cleaned ${jobs.length} ${type} jobs from the queue.`);
+    logInfo(`*cleaned | Cleaned ${jobs.length} ${type} jobs from the queue.`);
   })
 
   .on('drained', function () {
-    console.log('*drained | The queue has processed all waiting jobs.');
+    logInfo('*drained | The queue has processed all waiting jobs.');
   })
 
   .on('removed', function (job) {
-    console.log(`*removed | Job with ID ${job.id} has been removed from the queue.`);
+    logInfo(`*removed | Job with ID ${job.id} has been removed from the queue.`);
   });
 };
