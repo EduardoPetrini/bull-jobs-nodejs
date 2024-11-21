@@ -4,8 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node main.ts",
-    "main": "nodemon main.ts",
-    "worker": "nodemon main.ts worker",
+    "server": "nodemon server.ts",
+    "main": "nodemon main-standalone.ts",
+    "worker": "nodemon main-standalone.ts worker",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,13 +15,16 @@
   "description": "",
   "dependencies": {
     "bull": "^4.16.4",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "devDependencies": {
     "@types/bull": "^4.10.4",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "nodemon": "^3.1.7"
   }
 }
-
