@@ -1,8 +1,8 @@
 import { spawn } from 'child_process';
 import { Queue } from 'bull';
 import { setTimeout } from 'timers/promises';
-import { logInfo } from './utils/utils';
-import { Queues } from './Queues';
+import { logInfo } from '../utils/utils';
+import { Queues } from '../app/Queues';
 
 export const startWorker = async (myQueue: Queue) => {
   myQueue.process(async (job, done) => {

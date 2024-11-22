@@ -1,11 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import readline from 'readline';
 
 import Queue from 'bull';
-import { listen } from './events';
-import { startWorker } from './worker';
-import { logInfo } from './utils/utils';
+import { logInfo } from '../utils/utils';
+import { listen } from '../utils/events';
+import { startWorker } from '../worker/worker';
 
 const start = async () => {
   const mode = process.argv[2] || 'main';

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node main.ts",
-    "server": "nodemon server.ts",
-    "main": "nodemon main-standalone.ts",
-    "worker": "nodemon main-standalone.ts worker",
+    "start": "ts-node src/main/main-standalone.ts",
+    "server": "nodemon src/server.ts",
+    "main": "nodemon src/main/main-standalone.ts",
+    "worker": "nodemon src/main/main-standalone.ts worker",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -28,3 +28,4 @@
     "nodemon": "^3.1.7"
   }
 }
+

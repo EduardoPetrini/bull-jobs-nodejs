@@ -1,5 +1,5 @@
 import { Job, Queue } from 'bull';
-import { logInfo } from './utils/utils';
+import { logInfo } from './utils';
 
 export const listen = (queue: Queue) => {
   queue.on('error', function (error) {

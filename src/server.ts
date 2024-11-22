@@ -4,8 +4,8 @@ dotenv.config();
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { logInfo } from './utils/utils';
-import { Queues } from './Queues';
-import { checkWorkers } from './worker';
+import { checkWorkers } from './worker/worker';
+import { Queues } from './app/Queues';
 
 const app = express();
 

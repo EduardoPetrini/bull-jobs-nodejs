@@ -1,5 +1,5 @@
 import Queue, { Queue as QueueType } from 'bull';
-import { logInfo } from './utils/utils';
+import { logInfo } from '../utils/utils';
 
 
 type QueueOptions = {
