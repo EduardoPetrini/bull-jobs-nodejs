@@ -26,7 +26,7 @@ export class Queues {
       return this.queueMap.get(queueName);
     }
 
-    const queue = new Queue(queueName, { redis: { host: this.options.host, port: this.options.port } });
+    const queue = new Queue(queueName, { prefix: 'mp', redis: { host: this.options.host, port: this.options.port } });
     this.queueMap.set(queueName, queue);
 
     return queue;

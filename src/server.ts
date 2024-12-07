@@ -21,9 +21,10 @@ app.post('/job', async (req: Request, res: Response) => {
   const body = req.body;
 
   const queueName = body.queueName;
+  const jobName = body.jobName;
   const jobData = body.data
 
-  if (!queueName || !jobData) {
+  if (!queueName || !jobName || !jobData) {
     throw new Error('Missing body parameters')
   }
 
@@ -34,7 +35,7 @@ app.post('/job', async (req: Request, res: Response) => {
     return;
   }
 
-  queue.add(jobData);
+  queue.add(jobName, jobData);
 
   await checkWorkers(queueInstance, queueName);
   res.send({ status: 0, message: 'Job added to the queue: ' + queueName })

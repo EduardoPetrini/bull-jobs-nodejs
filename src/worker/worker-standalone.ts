@@ -9,8 +9,9 @@ const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
 
 const start = async () => {
   const queueName = process.argv[2] || 'my-queue';
+  const jobName = process.argv[3] || 'my-job';
 
-  console.log('Starting worker...');
+  console.log('Starting worker...', queueName, jobName);
 
   const myQueue = new Queues(REDIS_HOST, REDIS_PORT);
 
@@ -22,9 +23,9 @@ const start = async () => {
 
   // listen(queue);
 
-  console.log(`Processing the queue ${queueName}`);
+  console.log(`Processing the queue ${queueName} - ${jobName}`);
 
-  queue.process(async (job, done) => {
+  queue.process(jobName, async (job, done) => {
     console.log(`Processing the job: ${job.id}`);
     setTimeout(async () => {
       console.log(`Processing the job data ${job.id} - ${job.data}`);
@@ -34,10 +35,10 @@ const start = async () => {
       if (isQueueEmpty) {
         smoothShutdown();
       }
-    }, 5_000)
+    }, 10_000)
   });
 }
 
 start().then(() => {
-  console.log('Done')
+  // console.log('Done');
 })
