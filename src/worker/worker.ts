@@ -14,14 +14,18 @@ export const startWorker = async (myQueue: Queue) => {
   })
 }
 
-export const checkWorkers = async (queue: Queues, name: string) => {
-  const workers = await queue.isThereWorkForQueue(name);
+export const newWorker = async (queueName: string, jobName: string) => {
+  await startWorkerProcess('process', [queueName, jobName]);
+}
+
+export const checkWorkers = async (queue: Queues, queueName: string, jobName: string) => {
+  const workers = await queue.isThereWorkForQueue(queueName);
   if (workers) {
-    logInfo(`There are ${workers} workers for the queue ${name}`);
-    return;
+    logInfo(`There are workers for the queue `);
+    return true;
   }
 
-  logInfo(`No workers found for the queue ${name}, instantiating a new one`);
-
-  startWorkerProcess('process', [name]);
+  logInfo(`No workers found for the queue `);
+  await newWorker(queueName, jobName)
+  return false;
 }

@@ -11,32 +11,35 @@ const start = async () => {
   const queueName = process.argv[2] || 'my-queue';
   const jobName = process.argv[3] || 'my-job';
 
-  console.log('Starting worker...', queueName, jobName);
+  console.log('Starting worker...', queueName, jobName, process.pid);
 
-  const myQueue = new Queues(REDIS_HOST, REDIS_PORT);
-
-  const queue = myQueue.createQueue(queueName);
+  const queueInstance = new Queues(REDIS_HOST, REDIS_PORT)
+  const queue = queueInstance.createQueue(queueName);
 
   if (!queue) {
     throw new Error('Error to create the queue: ' + queueName);
   }
 
-  // listen(queue);
-
   console.log(`Processing the queue ${queueName} - ${jobName}`);
+  const done = await new Promise(resolve => {
+    queue.process(jobName, 1, async (job) => {
+      console.log(`Processing the job: ${job.id}`);
+      setTimeout(async () => {
+        console.log(`Processing the job data ${job.id} - ${job.data}`);
+        const isQueueEmpty = await queueInstance.isQueueEmpty(queueName);
 
-  queue.process(jobName, async (job, done) => {
-    console.log(`Processing the job: ${job.id}`);
-    setTimeout(async () => {
-      console.log(`Processing the job data ${job.id} - ${job.data}`);
-      const isQueueEmpty = await myQueue.isQueueEmpty(queueName);
-      done(null, { done: true });
 
-      if (isQueueEmpty) {
-        smoothShutdown();
-      }
-    }, 10_000)
+        resolve(1)
+      }, 1_000);
+
+
+    });
+
+    console.log('Queue process ready for', queueName, jobName)
   });
+
+  console.log('job is done', done);
+  smoothShutdown();
 }
 
 start().then(() => {

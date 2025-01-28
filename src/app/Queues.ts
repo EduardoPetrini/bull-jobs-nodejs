@@ -10,6 +10,7 @@ type QueueOptions = {
 export class Queues {
   private options: QueueOptions;
   private queueMap: Map<string, QueueType>;
+  private defaultHandlerDone: boolean = false;
 
   constructor(redisHost: string, redisPort: number) {
     this.options = {
@@ -26,7 +27,7 @@ export class Queues {
       return this.queueMap.get(queueName);
     }
 
-    const queue = new Queue(queueName, { prefix: 'mp', redis: { host: this.options.host, port: this.options.port } });
+    const queue = new Queue(queueName, { prefix: 'local', redis: { host: this.options.host, port: this.options.port } });
     this.queueMap.set(queueName, queue);
 
     return queue;
@@ -43,15 +44,21 @@ export class Queues {
   }
 
   async isThereWorkForQueue(queueName: string) {
-    if (!this.queueMap.has(queueName)) {
+    const queue = this.queueMap.get(queueName);
+    if (!queue) {
       logInfo(`Queue "${queueName}"  doesn't exists`);
-      return;
+      return false;
     }
 
-    const queue = this.queueMap.get(queueName);
+    const workers = await queue.getWorkers();
 
-    const workers = (await queue?.getWorkers())?.length;
-    return workers;
+    if (!workers) {
+      return false;
+    }
+
+    workers.forEach((worker: { [index: string]: string }) => logInfo(worker.name, worker.id));
+    const workerCount = workers.length;
+    return workerCount > 0
   }
 
   countQueues() {
@@ -84,5 +91,27 @@ export class Queues {
     logInfo(`Is queue ${queueName} empty? ${isEmpty}`);
 
     return isEmpty;
+  }
+
+  setupDefaultHandler(queueName: string) {
+    if (this.defaultHandlerDone) {
+      logInfo(`Default handler already configured, skipping...`);
+      return;
+    }
+
+    const queue = this.queueMap.get(queueName);
+    if (!queue) {
+      logInfo(`Queue "${queueName}"  doesn't exists`);
+      return;
+    }
+
+
+    logInfo('Setting up the default job handler')
+    queue.process('default', 1, (job, done) => {
+      logInfo('Default handler executing for', queueName, job.name, job.id);
+      done();
+    });
+
+    this.defaultHandlerDone = true;
   }
 }
