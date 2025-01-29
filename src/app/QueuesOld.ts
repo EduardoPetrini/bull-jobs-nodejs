@@ -1,29 +1,35 @@
-import { logInfo } from "../utils/utils";
-import {
-    Job,
-  QueueFactory,
-  QueueOptions,
-  QueueProvider,
-} from "./interfaces/interfaces";
+import Queue, { Queue as QueueType } from 'bull';
+import { logInfo } from '../utils/utils';
+
+
+type QueueOptions = {
+  host: string;
+  port: number;
+}
 
 export class Queues {
-  private queueMap: Map<string, QueueProvider>;
+  private options: QueueOptions;
+  private queueMap: Map<string, QueueType>;
   private defaultHandlerDone: boolean = false;
 
-  constructor(
-    private options: QueueOptions,
-    private queueFactory: QueueFactory
-  ) {
+  constructor(redisHost: string, redisPort: number) {
+    this.options = {
+      host: redisHost,
+      port: redisPort,
+    }
+
     this.queueMap = new Map();
   }
 
-  async createQueue(queueName: string) {
+  createQueue(queueName: string) {
     if (this.queueMap.has(queueName)) {
+      logInfo(`Queue "${queueName}" already exists`);
       return this.queueMap.get(queueName);
     }
 
-    const queue = await this.queueFactory.createQueue(queueName, this.options);
+    const queue = new Queue(queueName, { prefix: 'local', redis: { host: this.options.host, port: this.options.port } });
     this.queueMap.set(queueName, queue);
+
     return queue;
   }
 
@@ -50,15 +56,13 @@ export class Queues {
       return false;
     }
 
-    workers.forEach((worker: { [index: string]: string }) =>
-      logInfo(worker.name, worker.id)
-    );
+    workers.forEach((worker: { [index: string]: string }) => logInfo(worker.name, worker.id));
     const workerCount = workers.length;
-    return workerCount > 0;
+    return workerCount > 0
   }
 
   countQueues() {
-    logInfo("Current number of queues: ", this.queueMap.size);
+    logInfo('Current number of queues: ', this.queueMap.size)
     return this.queueMap.size;
   }
 
@@ -101,9 +105,10 @@ export class Queues {
       return;
     }
 
-    logInfo("Setting up the default job handler");
-    queue.process("default", 1, (job: Job, done: () => void) => {
-      logInfo("Default handler executing for", queueName, job.name, job.id);
+
+    logInfo('Setting up the default job handler')
+    queue.process('default', 1, (job, done) => {
+      logInfo('Default handler executing for', queueName, job.name, job.id);
       done();
     });
 
